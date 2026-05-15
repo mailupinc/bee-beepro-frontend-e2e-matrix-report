@@ -56,6 +56,39 @@
   min-width: 100px;
 }
 
+.avgTime {
+  background: #374151;
+  min-width: 80px;
+  font-size: 11px;
+}
+
+.sortBtn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.sortIcon {
+  font-size: 10px;
+  opacity: 0.4;
+}
+
+.sortIconActive {
+  font-size: 10px;
+  opacity: 1;
+}
+
 .date {
   writing-mode: vertical-rl;
   text-orientation: mixed;

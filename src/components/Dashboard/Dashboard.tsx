@@ -20,7 +20,7 @@ const INITIAL: DashboardQuery = {
   nReports: 30,
   search: '',
   owners: [],
-  selectedReportIndices: [],
+  selectedReportIndices: [0, 1, 2, 3, 4],
   stability: 'all',
 }
 
@@ -161,6 +161,7 @@ const Dashboard = () => {
         <Filters
           query={query}
           onChange={handleChange}
+          onReset={() => setQuery(INITIAL)}
           filters={filters.data}
           owners={ownersList}
           reports={reports.data?.reports ?? []}
