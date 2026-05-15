@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import AuthProvider from '@/components/AuthProvider'
 import './globals.scss'
 
 export const metadata: Metadata = {
@@ -13,7 +14,9 @@ export const viewport: Viewport = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en">
-    <body>{children}</body>
+    <body>
+      <AuthProvider>{children}</AuthProvider>
+    </body>
   </html>
 )
 
