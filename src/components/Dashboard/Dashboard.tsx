@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Filters from '@/components/Filters/Filters'
 import Stats from '@/components/Stats/Stats'
 import Matrix from '@/components/Matrix/Matrix'
@@ -52,17 +52,7 @@ const Dashboard = () => {
     if (changed) setQuery(corrected)
   }, [filters.data]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const allOwnersRef = useRef<Set<string>>(new Set())
-
-  const ownersList = useMemo(() => {
-    if (!reports.data) return Array.from(allOwnersRef.current).sort()
-    // Only accumulate when no owner filter is active (full dataset)
-    if (query.owners.length === 0) {
-      allOwnersRef.current = new Set<string>()
-      reports.data.rows.forEach((row) => allOwnersRef.current.add(row.owner))
-    }
-    return Array.from(allOwnersRef.current).sort()
-  }, [reports.data, query.owners.length])
+  const ownersList = filters.data?.owners ?? []
 
   const handleChange = useCallback(
     (changes: Partial<DashboardQuery>) => {

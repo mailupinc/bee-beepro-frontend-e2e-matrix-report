@@ -2,6 +2,7 @@ import { TtlCache } from '@/lib/cache'
 import { env } from '@/lib/env'
 import { buildLevelPrefix, stripSegmentPrefix } from '@/lib/paths'
 import { listPrefix } from '@/lib/s3'
+import { getAllOwners } from '@/services/suiteOwnersService'
 import type { FiltersResponse } from '@/lib/types'
 
 export type FiltersQuery = {
@@ -100,5 +101,6 @@ export const getFilters = async (query: FiltersQuery): Promise<FiltersResponse> 
     branches: { all: allBranches, available: availableBranches },
     specs: { all: allSpecs, available: availableSpecs },
     baseUrls: { all: allBaseUrls, available: availableBaseUrls },
+    owners: getAllOwners(),
   }
 }

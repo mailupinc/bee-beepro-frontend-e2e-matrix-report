@@ -24,3 +24,5 @@ export const assignOwner = (filePath: string): string => {
   const hash = Array.from(filePath).reduce((acc, c) => acc + c.charCodeAt(0), 0)
   return owners[hash % owners.length]
 }
+
+export const getAllOwners = (): string[] => getCodeowners()

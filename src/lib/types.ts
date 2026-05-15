@@ -14,6 +14,7 @@ export type FiltersResponse = {
   branches: FilterLevel
   specs: FilterLevel
   baseUrls: FilterLevel
+  owners: string[]
 }
 
 export type ReportsQuery = {
