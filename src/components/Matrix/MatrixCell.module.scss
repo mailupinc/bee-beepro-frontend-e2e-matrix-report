@@ -14,3 +14,12 @@
 .skipped { background-color: #2a2519; color: #fbbf24; }
 .pending { background-color: #1a1f2e; color: #94a3b8; }
 .noData  { background-color: var(--color-surface); color: var(--color-muted); }
+
+.duration {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 400;
+  opacity: 0.75;
+  line-height: 1;
+  margin-top: 2px;
+}

@@ -3,12 +3,28 @@
 import styles from './MatrixHeader.module.scss'
 import type { ReportsResponse } from '@/lib/types'
 
-type Props = { reports: ReportsResponse['reports'] }
+type Props = {
+  reports: ReportsResponse['reports']
+  collapsed: boolean
+  onToggleCollapse: () => void
+}
 
-const MatrixHeader = ({ reports }: Props) => (
+const MatrixHeader = ({ reports, collapsed, onToggleCollapse }: Props) => (
   <thead>
     <tr>
-      <th className={`${styles.cell} ${styles.testName}`}>Test</th>
+      <th className={`${styles.cell} ${styles.testName}`}>
+        <span className={styles.testNameInner}>
+          Test
+          <button
+            className={styles.collapseBtn}
+            onClick={onToggleCollapse}
+            title={collapsed ? 'Expand test column' : 'Collapse test column'}
+            aria-label={collapsed ? 'Expand test column' : 'Collapse test column'}
+          >
+            {collapsed ? '→' : '←'}
+          </button>
+        </span>
+      </th>
       <th className={`${styles.cell} ${styles.owner}`}>Owner</th>
       <th className={`${styles.cell} ${styles.rate}`}>Unstable Rate</th>
       {reports.map((report) => (

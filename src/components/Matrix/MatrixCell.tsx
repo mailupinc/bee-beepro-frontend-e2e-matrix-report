@@ -16,6 +16,11 @@ const getState = (cell: TestCell) => {
   return { cls: 'success', icon: '✓', label: 'Passed' } as const
 }
 
+const formatDuration = (ms?: number): string | null => {
+  if (ms == null) return null
+  return `${Math.round(ms / 1000)}s`
+}
+
 const MatrixCell = ({ cell, report, onClick }: Props) => {
   if (!cell) {
     return (
@@ -25,13 +30,15 @@ const MatrixCell = ({ cell, report, onClick }: Props) => {
     )
   }
   const { cls, icon, label } = getState(cell)
+  const duration = formatDuration(cell.duration)
   return (
     <td
       className={`${styles.cell} ${styles[cls]} ${styles.clickable}`}
-      title={report ? `${report.date} ${report.time} · ${label}` : label}
+      title={report ? `${report.date} ${report.time} · ${label}${duration ? ` · ${duration}` : ''}` : label}
       onClick={onClick}
     >
       {icon}
+      {duration && <span className={styles.duration}>{duration}</span>}
     </td>
   )
 }

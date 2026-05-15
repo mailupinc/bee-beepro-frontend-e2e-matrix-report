@@ -31,6 +31,7 @@ export type TestCell = {
   failed: boolean
   pending: boolean
   skipped: boolean
+  duration?: number
 }
 
 export type TestRow = {
@@ -79,6 +80,7 @@ export type ReportsResponse = {
 export type MochawesomeTest = {
   title: string
   state?: 'failed' | 'passed' | 'pending' | string
+  duration?: number
 }
 
 export type MochawesomeSuite = {

@@ -23,6 +23,10 @@
   white-space: nowrap;
   padding-left: 12px;
   padding-right: 10px;
+  min-width: var(--test-col-min, 600px);
+  width: var(--test-col-min, 600px);
+  max-width: var(--test-col-max, none);
+  transition: min-width 0.2s ease, width 0.2s ease, max-width 0.2s ease;
 }
 
 .title {

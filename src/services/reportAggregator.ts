@@ -13,11 +13,16 @@ const normalizeFilePath = (filePath?: string): string =>
 
 type CellState = 'failed' | 'passed' | 'pending' | 'skipped'
 
+type CellEntry = {
+  state: CellState
+  duration?: number
+}
+
 type TestAccumulator = {
   testName: string
   filePath: string
   owner: string
-  cells: Map<string, CellState>
+  cells: Map<string, CellEntry>
 }
 
 const walkSuite = (
@@ -53,8 +58,11 @@ const walkSuite = (
     const existing = entry.cells.get(reportKey)
     // Priority: failed > passed > skipped > pending (retries: if it passes after failing, failed wins)
     const priority: Record<CellState, number> = { failed: 3, passed: 2, skipped: 1, pending: 0 }
-    if (!existing || priority[state] > priority[existing]) {
-      entry.cells.set(reportKey, state)
+    if (!existing || priority[state] > priority[existing.state]) {
+      entry.cells.set(reportKey, { state, duration: test.duration })
+    } else if (existing && test.duration != null) {
+      // Accumulate duration across retries
+      existing.duration = (existing.duration ?? 0) + test.duration
     }
   })
 
@@ -103,9 +111,9 @@ export const aggregateReports = async ({ reports }: AggregateInput): Promise<Agg
     .filter((entry) => entry.owner !== 'unknown')
     .map((entry) => {
       const cells = orderedKeys.map((k) => {
-        const state = entry.cells.get(k)
-        if (state === undefined) return null
-        return { failed: state === 'failed', pending: state === 'pending', skipped: state === 'skipped' }
+        const cellEntry = entry.cells.get(k)
+        if (cellEntry === undefined) return null
+        return { failed: cellEntry.state === 'failed', pending: cellEntry.state === 'pending', skipped: cellEntry.state === 'skipped', duration: cellEntry.duration }
       })
       const runs = cells.filter((c) => c !== null).length
       const failures = cells.filter((c) => c?.failed).length
