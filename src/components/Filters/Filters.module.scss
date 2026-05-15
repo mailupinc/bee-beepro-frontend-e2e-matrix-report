@@ -1,0 +1,9 @@
+.filters {
+  background: var(--color-surface);
+  padding: 12px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "history-report",
+  "version": "0.1.0",
+  "private": true,
+  "description": "E2E Test Failure Matrix — dynamic Next.js app fetching reports from S3",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "prebuild": "node ./scripts/generate-suite-owners-bridge.cjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noemit",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.658.0",
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "swr": "^2.2.5"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.15.33",
+    "@swc/jest": "^0.2.39",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "20.14.0",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.35",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "sass": "^1.79.4",
+    "ts-jest": "^29.4.9",
+    "typescript": "5.5.4"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

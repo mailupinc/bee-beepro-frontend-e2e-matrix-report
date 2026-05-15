@@ -1,0 +1,25 @@
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted, #8b95a8);
+  font-weight: 600;
+}
+
+.sectionCards {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

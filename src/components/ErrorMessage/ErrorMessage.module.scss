@@ -1,0 +1,12 @@
+.error {
+  background: var(--color-surface);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+
+  h2 {
+    color: var(--color-failure);
+    margin-bottom: 8px;
+  }
+}

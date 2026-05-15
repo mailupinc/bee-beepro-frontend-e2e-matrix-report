@@ -1,0 +1,52 @@
+.cell {
+  background: #2d3748;
+  color: #f7fafc;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+.testName {
+  position: sticky;
+  left: 0;
+  z-index: 11;
+  min-width: 600px;
+  width: 600px;
+}
+
+.owner {
+  background: #1f2937;
+  min-width: 120px;
+}
+
+.rate {
+  background: #374151;
+  min-width: 100px;
+}
+
+.date {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  min-width: 50px;
+  width: 50px;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  padding: 10px 4px;
+}
+
+.datePart {
+  display: block;
+  font-size: 11px;
+}
+
+.timePart {
+  display: block;
+  font-size: 9px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
