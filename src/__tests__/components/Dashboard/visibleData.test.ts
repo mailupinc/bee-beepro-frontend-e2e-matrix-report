@@ -25,8 +25,8 @@ function computeVisibleData(
       const failures = presentCells.filter((c) => c.failed).length
       const pendings = presentCells.filter((c) => c.pending).length
       const skips = presentCells.filter((c) => c.skipped).length
-      const failureRate = runs > 0 ? Number(((failures / runs) * 100).toFixed(1)) : 0
-      return { ...row, cells, runs, failures, pendings, skips, failureRate }
+      const unstableRate = runs > 0 ? Number(((failures / runs) * 100).toFixed(1)) : 0
+      return { ...row, cells, runs, failures, pendings, skips, unstableRate }
     })
     .filter((row) => indices.length === 0 || row.runs > 0)
 
@@ -127,7 +127,7 @@ describe('Dashboard visibleData computation', () => {
       const data = buildData([row])
       // Select only report 1 (failed)
       const result = computeVisibleData(data, [1])
-      expect(result.rows[0].failureRate).toBe(100)
+      expect(result.rows[0].unstableRate).toBe(100)
       expect(result.rows[0].failures).toBe(1)
     })
   })

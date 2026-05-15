@@ -1,10 +1,3 @@
-export type SuiteOwner = {
-  owner: string
-  creator: string
-}
-
-export type SuiteOwnersMap = Record<string, SuiteOwner>
-
 export type ReportKey = {
   date: string // YYYY-MM-DD
   time: string // HH-MM-SS
@@ -43,7 +36,6 @@ export type TestRow = {
   testName: string
   filePath: string
   owner: string
-  creator: string
   unstableRate: number
   runs: number
   failures: number

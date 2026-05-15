@@ -27,8 +27,8 @@ describe('MatrixRow', () => {
     expect(screen.getByText('Unknown')).toBeInTheDocument()
   })
 
-  it('renders failure rate', () => {
-    const row = makeRow({ failureRate: 33.3 })
+  it('renders unstable rate', () => {
+    const row = makeRow({ unstableRate: 33.3 })
     wrap(<MatrixRow row={row} reports={reports} />)
     expect(screen.getByText('33.3%')).toBeInTheDocument()
   })

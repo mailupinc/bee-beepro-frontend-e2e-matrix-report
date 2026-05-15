@@ -7,7 +7,7 @@ describe('MatrixHeader', () => {
     render(<table><MatrixHeader reports={[]} /></table>)
     expect(screen.getByText('Test')).toBeInTheDocument()
     expect(screen.getByText('Owner')).toBeInTheDocument()
-    expect(screen.getByText('Failure Rate')).toBeInTheDocument()
+    expect(screen.getByText('Unstable Rate')).toBeInTheDocument()
   })
 
   it('renders a header for each report', () => {

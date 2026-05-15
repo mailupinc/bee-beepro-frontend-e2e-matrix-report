@@ -16,7 +16,7 @@ const MatrixRow = ({ row, reports, onCellClick }: Props) => (
       <span className={styles.title}>{row.testName}</span>
       <span className={styles.file}>{row.filePath}</span>
     </td>
-    <td className={`${styles.cell} ${styles.owner}`} title={`Owner: @${row.owner}\nCreator: @${row.creator}`}>
+    <td className={`${styles.cell} ${styles.owner}`} title={`Owner: @${row.owner}`}>
       {row.owner === 'unknown' ? 'Unknown' : `@${row.owner}`}
     </td>
     <td className={`${styles.cell} ${styles.rate}`}>{row.unstableRate}%</td>

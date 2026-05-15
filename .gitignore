@@ -5,4 +5,4 @@ out/
 *.log
 *.tsbuildinfo
 .env*.local
-src/data/suite-owners.generated.json
+.DS_Store

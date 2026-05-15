@@ -1,6 +1,5 @@
 import { aggregateReports } from './reportAggregator'
 import { getManifest } from './manifestService'
-import { getSuiteOwners } from './suiteOwnersService'
 import type { ReportsQuery, ReportsResponse, TestRow } from '@/lib/types'
 
 const matchesSearch = (row: TestRow, search: string | null): boolean => {
@@ -23,8 +22,7 @@ export const getReports = async (query: ReportsQuery): Promise<ReportsResponse> 
   })
 
   const selected = manifest.slice(0, query.nReports)
-  const owners = getSuiteOwners()
-  const { rows: allRows, reportStats } = await aggregateReports({ reports: selected, owners })
+  const { rows: allRows, reportStats } = await aggregateReports({ reports: selected })
 
   const filtered = allRows
     .filter((row) => matchesSearch(row, query.search))

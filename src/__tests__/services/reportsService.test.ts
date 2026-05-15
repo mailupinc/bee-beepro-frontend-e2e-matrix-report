@@ -8,7 +8,7 @@ jest.mock('@/services/manifestService', () => ({
   getManifest: jest.fn(),
 }))
 jest.mock('@/services/suiteOwnersService', () => ({
-  getSuiteOwners: jest.fn().mockReturnValue({}),
+  assignOwner: jest.fn().mockReturnValue('mock-owner'),
 }))
 
 import { aggregateReports } from '@/services/reportAggregator'
@@ -37,8 +37,7 @@ const makeTestRow = (name: string, owner: string, failures = 0): TestRow => ({
   testName: name,
   filePath: `feat/${name}.cy.ts`,
   owner,
-  creator: 'creator',
-  failureRate: failures > 0 ? 50 : 0,
+  unstableRate: failures > 0 ? 50 : 0,
   runs: 2,
   failures,
   pendings: 0,

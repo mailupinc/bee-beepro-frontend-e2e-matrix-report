@@ -1,8 +1,13 @@
-import type { MochawesomeReport, SuiteOwnersMap, ReportKey } from '@/lib/types'
+import type { MochawesomeReport, ReportKey } from '@/lib/types'
 
 const mockGetJson = jest.fn()
 jest.mock('@/lib/s3', () => ({
   getJson: (...args: unknown[]) => mockGetJson(...args),
+}))
+
+const mockAssignOwner = jest.fn()
+jest.mock('@/services/suiteOwnersService', () => ({
+  assignOwner: (filePath: string) => mockAssignOwner(filePath),
 }))
 
 // We need a fresh module for each test to avoid the ImmutableCache persisting
@@ -10,17 +15,21 @@ let aggregateReports: typeof import('@/services/reportAggregator').aggregateRepo
 beforeEach(() => {
   jest.resetModules()
   mockGetJson.mockReset()
+  mockAssignOwner.mockReset()
+  // Default: assign owner based on a simple map
+  mockAssignOwner.mockImplementation((filePath: string) => {
+    const map: Record<string, string> = {
+      'myFeature/test-a.cy.ts': 'alice',
+      'myFeature/test-b.cy.ts': 'charlie',
+      'otherFeature/test-c.cy.ts': 'eve',
+    }
+    return map[filePath] ?? 'unknown'
+  })
   // Re-require after resetModules to get a fresh ImmutableCache
   return import('@/services/reportAggregator').then((mod) => {
     aggregateReports = mod.aggregateReports
   })
 })
-
-const owners: SuiteOwnersMap = {
-  'myFeature/test-a.cy.ts': { owner: 'alice', creator: 'bob' },
-  'myFeature/test-b.cy.ts': { owner: 'charlie', creator: 'dave' },
-  'otherFeature/test-c.cy.ts': { owner: 'eve', creator: 'frank' },
-}
 
 const makeReport = (tests: Array<{ title: string; state: string; file: string }>): MochawesomeReport => ({
   stats: {
@@ -62,7 +71,7 @@ describe('reportAggregator', () => {
     ])
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     expect(result.rows).toHaveLength(3)
     expect(result.rows.find((r) => r.testName === 'Suite > test 1')?.cells[0]).toEqual({ failed: false, pending: false, skipped: false })
@@ -87,7 +96,7 @@ describe('reportAggregator', () => {
     }
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     const row = result.rows.find((r) => r.testName === 'Suite > duplicated test')!
     expect(row.cells[0]).toEqual({ failed: true, pending: false, skipped: false })
@@ -102,7 +111,7 @@ describe('reportAggregator', () => {
     ])
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     expect(result.rows).toHaveLength(1)
     expect(result.rows[0].testName).toBe('Suite > known test')
@@ -120,7 +129,7 @@ describe('reportAggregator', () => {
       return report2
     })
 
-    const result = await aggregateReports({ reports: [report1Key, report2Key], owners })
+    const result = await aggregateReports({ reports: [report1Key, report2Key] })
 
     expect(result.rows).toHaveLength(1)
     const row = result.rows[0]
@@ -128,7 +137,7 @@ describe('reportAggregator', () => {
     expect(row.cells[1]).toEqual({ failed: true, pending: false, skipped: false }) // failed in report 2
     expect(row.failures).toBe(1)
     expect(row.runs).toBe(2)
-    expect(row.failureRate).toBe(50)
+    expect(row.unstableRate).toBe(50)
   })
 
   it('returns null cells when test is absent from a report', async () => {
@@ -143,7 +152,7 @@ describe('reportAggregator', () => {
       return report2
     })
 
-    const result = await aggregateReports({ reports: [report1Key, report2Key], owners })
+    const result = await aggregateReports({ reports: [report1Key, report2Key] })
 
     const row1 = result.rows.find((r) => r.testName === 'Suite > test 1')!
     expect(row1.cells[0]).not.toBeNull() // present in report 1
@@ -162,7 +171,7 @@ describe('reportAggregator', () => {
     }
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     const stats = result.reportStats.get(report1Key.s3Key)!
     expect(stats.tests).toBe(10)
@@ -172,16 +181,15 @@ describe('reportAggregator', () => {
     expect(stats.skipped).toBe(0)
   })
 
-  it('assigns correct owner and creator from owners map', async () => {
+  it('assigns correct owner from CODEOWNERS via assignOwner', async () => {
     const report = makeReport([
       { title: 'test', state: 'passed', file: 'myFeature/test-b.cy.ts' },
     ])
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     expect(result.rows[0].owner).toBe('charlie')
-    expect(result.rows[0].creator).toBe('dave')
   })
 
   it('handles nested suites and propagates parentFile', async () => {
@@ -201,7 +209,7 @@ describe('reportAggregator', () => {
     }
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     expect(result.rows[0].testName).toBe('Outer > Inner > deep test')
     expect(result.rows[0].filePath).toBe('myFeature/test-a.cy.ts')
@@ -213,7 +221,7 @@ describe('reportAggregator', () => {
     ])
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     expect(result.rows[0].cells[0]).toEqual({ failed: false, pending: false, skipped: true })
     expect(result.rows[0].skips).toBe(1)
@@ -237,7 +245,7 @@ describe('reportAggregator', () => {
     }
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     // Failed has highest priority
     expect(result.rows[0].cells[0]).toEqual({ failed: true, pending: false, skipped: false })
@@ -247,7 +255,7 @@ describe('reportAggregator', () => {
     const report: MochawesomeReport = { stats: { tests: 0, passes: 0, failures: 0, pending: 0, skipped: 0 }, results: [] }
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     expect(result.rows).toHaveLength(0)
     expect(result.reportStats.get(report1Key.s3Key)).toEqual({ tests: 0, passes: 0, failures: 0, pending: 0, skipped: 0 })
@@ -257,7 +265,7 @@ describe('reportAggregator', () => {
     const report: MochawesomeReport = { results: [] }
     mockGetJson.mockResolvedValue(report)
 
-    const result = await aggregateReports({ reports: [report1Key], owners })
+    const result = await aggregateReports({ reports: [report1Key] })
 
     expect(result.reportStats.get(report1Key.s3Key)).toEqual({ tests: 0, passes: 0, failures: 0, pending: 0, skipped: 0 })
   })

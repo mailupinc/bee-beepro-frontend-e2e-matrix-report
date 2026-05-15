@@ -1,6 +1,7 @@
 import { ImmutableCache } from '@/lib/cache'
 import { getJson } from '@/lib/s3'
-import type { MochawesomeReport, MochawesomeSuite, MochawesomeTest, ReportKey, SuiteOwnersMap, TestRow } from '@/lib/types'
+import type { MochawesomeReport, MochawesomeSuite, MochawesomeTest, ReportKey, TestRow } from '@/lib/types'
+import { assignOwner } from './suiteOwnersService'
 
 const reportCache = new ImmutableCache<MochawesomeReport>()
 
@@ -16,14 +17,12 @@ type TestAccumulator = {
   testName: string
   filePath: string
   owner: string
-  creator: string
   cells: Map<string, CellState>
 }
 
 const walkSuite = (
   suite: MochawesomeSuite,
   reportKey: string,
-  owners: SuiteOwnersMap,
   acc: Map<string, TestAccumulator>,
   parentTitle = '',
   parentFile = '',
@@ -34,7 +33,6 @@ const walkSuite = (
   suite.tests?.forEach((test: MochawesomeTest) => {
     const fullName = suiteTitle ? `${suiteTitle} > ${test.title}` : test.title
     const filePath = normalizeFilePath(suiteFile)
-    const ownerInfo = owners[filePath] ?? { owner: 'unknown', creator: 'unknown' }
     const dedupKey = `${filePath}::${fullName}`
 
     let entry = acc.get(dedupKey)
@@ -42,8 +40,7 @@ const walkSuite = (
       entry = {
         testName: fullName,
         filePath,
-        owner: ownerInfo.owner,
-        creator: ownerInfo.creator,
+        owner: assignOwner(filePath),
         cells: new Map(),
       }
       acc.set(dedupKey, entry)
@@ -51,8 +48,8 @@ const walkSuite = (
 
     const state: CellState = test.state === 'failed' ? 'failed'
       : test.state === 'pending' ? 'pending'
-      : test.state === 'skipped' ? 'skipped'
-      : 'passed'
+        : test.state === 'skipped' ? 'skipped'
+          : 'passed'
     const existing = entry.cells.get(reportKey)
     // Priority: failed > passed > skipped > pending (retries: if it passes after failing, failed wins)
     const priority: Record<CellState, number> = { failed: 3, passed: 2, skipped: 1, pending: 0 }
@@ -61,12 +58,11 @@ const walkSuite = (
     }
   })
 
-  suite.suites?.forEach((nested) => walkSuite(nested, reportKey, owners, acc, suiteTitle, suiteFile))
+  suite.suites?.forEach((nested) => walkSuite(nested, reportKey, acc, suiteTitle, suiteFile))
 }
 
 export type AggregateInput = {
   reports: ReportKey[]
-  owners: SuiteOwnersMap
 }
 
 export type ReportStats = {
@@ -82,7 +78,7 @@ export type AggregateResult = {
   reportStats: Map<string, ReportStats>
 }
 
-export const aggregateReports = async ({ reports, owners }: AggregateInput): Promise<AggregateResult> => {
+export const aggregateReports = async ({ reports }: AggregateInput): Promise<AggregateResult> => {
   const acc = new Map<string, TestAccumulator>()
   const reportStats = new Map<string, ReportStats>()
 
@@ -91,7 +87,7 @@ export const aggregateReports = async ({ reports, owners }: AggregateInput): Pro
   )
 
   for (const { key, data } of reportData) {
-    data.results?.forEach((root) => walkSuite(root, key, owners, acc))
+    data.results?.forEach((root) => walkSuite(root, key, acc))
     reportStats.set(key, {
       passes: data.stats?.passes ?? 0,
       failures: data.stats?.failures ?? 0,
@@ -120,7 +116,6 @@ export const aggregateReports = async ({ reports, owners }: AggregateInput): Pro
         testName: entry.testName,
         filePath: entry.filePath,
         owner: entry.owner,
-        creator: entry.creator,
         cells,
         runs,
         failures,

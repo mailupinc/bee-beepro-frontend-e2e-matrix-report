@@ -17,8 +17,7 @@ export const makeRow = (overrides?: Partial<TestRow>): TestRow => ({
   testName: 'My Suite > should do something',
   filePath: 'myFeature/my-test.cy.ts',
   owner: 'alice',
-  creator: 'bob',
-  failureRate: 0,
+  unstableRate: 0,
   runs: 3,
   failures: 0,
   pendings: 0,
@@ -31,7 +30,7 @@ export const makeReportsResponse = (overrides?: Partial<ReportsResponse>): Repor
   reports: [makeReport(0), makeReport(1), makeReport(2)],
   rows: [
     makeRow(),
-    makeRow({ testName: 'My Suite > should fail', filePath: 'other/fail.cy.ts', owner: 'charlie', failures: 2, failureRate: 66.7, cells: [makeCell('failed'), makeCell('passed'), makeCell('failed')] }),
+    makeRow({ testName: 'My Suite > should fail', filePath: 'other/fail.cy.ts', owner: 'charlie', failures: 2, unstableRate: 66.7, cells: [makeCell('failed'), makeCell('passed'), makeCell('failed')] }),
     makeRow({ testName: 'My Suite > pending test', filePath: 'other/pending.cy.ts', owner: 'alice', pendings: 3, cells: [makeCell('pending'), makeCell('pending'), makeCell('pending')] }),
   ],
   totals: {
