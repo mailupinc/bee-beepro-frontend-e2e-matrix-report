@@ -5,11 +5,7 @@ import type { SuiteOwnersMap } from '@/lib/types'
 let cached: SuiteOwnersMap | null = null
 
 const candidatePaths = [
-  // Generated at Vercel build time by scripts/generate-suite-owners-bridge.cjs
   path.join(process.cwd(), 'src/data/suite-owners.generated.json'),
-  // Repo-root fallback (committed copy)
-  path.join(process.cwd(), '..', 'suite-owners.json'),
-  path.join(process.cwd(), 'suite-owners.json'),
 ]
 
 export const getSuiteOwners = (): SuiteOwnersMap => {
